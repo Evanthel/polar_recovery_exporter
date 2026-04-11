@@ -1,5 +1,5 @@
 # Polar Recovery Exporter
-`polar_recovery_exporter.py` is a quiet daily exporter for Polar Open AccessLink data. It fetches the latest sleep and nightly recharge data and upserts one row into `polar_daily.csv`.
+`polar_recovery_exporter.py` is a quiet daily exporter for Polar Open AccessLink data. It fetches the latest sleep and nightly recharge data, upserts one row into `polar_daily.csv`, and copies that latest CSV row to the macOS clipboard.
 
 The goal is to create a lightweight, analysis-ready dataset for personal tracking, journaling, or AI-assisted analysis. It focuses on a small set of high-signal recovery metrics such as HRV, sleep, and ANS rather than full activity tracking.
 
@@ -41,7 +41,7 @@ Run the exporter:
 python3 polar_recovery_exporter.py
 ```
 
-The script runs silently and only updates `polar_daily.csv`. The resulting CSV is designed to be easily used as input for spreadsheets, Python analysis, or AI tools (e.g. ChatGPT) for pattern discovery and decision support.
+The script runs silently, updates `polar_daily.csv`, and copies the latest written CSV row to the macOS clipboard using `pbcopy`. The resulting CSV is designed to be easily used as input for spreadsheets, Python analysis, or AI tools (e.g. ChatGPT) for pattern discovery and decision support.
 
 ## macOS Shortcuts
 
@@ -53,6 +53,8 @@ Use the path to your configured Polar example directory, for example:
 cd /path/to/your/accesslink-example-python
 python3 polar_recovery_exporter.py
 ```
+
+After each run, the newest CSV row is available directly in the clipboard, which is useful for Shortcuts, notes, journaling apps, or quick pasting into an AI tool.
 
 ## CSV Output
 
@@ -113,3 +115,8 @@ Useful additions with high signal-to-effort ratio include:
 - The script is publishable as a drop-in app for the official Polar example repo structure.
 - It is not a standalone single-file replacement for the whole Polar repo, because it still uses the local `accesslink` package and `utils.py` from that setup.
 - Do not commit `config.yml`, `.env`, or `polar_daily.csv`. This repository's `.gitignore` excludes them by default.
+
+## Changelog
+
+- Added automatic clipboard copy of the latest CSV row after each run on macOS.
+- Updated the documentation to describe the clipboard behavior and its Shortcuts-friendly workflow.

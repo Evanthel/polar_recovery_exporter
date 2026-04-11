@@ -29,7 +29,10 @@ or activity and training-load context.
 
 import csv
 import os
+import shutil
+import subprocess
 from datetime import datetime
+from io import StringIO
 
 from accesslink import AccessLink
 from utils import load_config
@@ -179,6 +182,7 @@ def calculate_sleep_stage_percentage(stage_seconds, sleep):
 def upsert_csv_row(csv_path, row):
     fieldnames = list(row.keys())
     existing_rows = []
+    latest_row = {fieldname: row.get(fieldname, "") for fieldname in fieldnames}
 
     if os.path.exists(csv_path):
         with open(csv_path, "r", newline="") as csv_file:
@@ -202,15 +206,33 @@ def upsert_csv_row(csv_path, row):
         if existing_row.get("date") == row["date"]:
             merged_row.update({fieldname: row.get(fieldname, "") for fieldname in fieldnames})
             row_written = True
+            latest_row = merged_row
         normalized_rows.append(merged_row)
 
     if not row_written:
-        normalized_rows.append({fieldname: row.get(fieldname, "") for fieldname in fieldnames})
+        normalized_rows.append(latest_row)
 
     with open(csv_path, "w", newline="") as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(normalized_rows)
+
+    copy_row_to_clipboard(fieldnames, latest_row)
+
+
+def copy_row_to_clipboard(fieldnames, row):
+    """Copy the latest CSV row to the macOS clipboard using the written column order."""
+    if not shutil.which("pbcopy"):
+        return
+
+    buffer = StringIO()
+    writer = csv.DictWriter(buffer, fieldnames=fieldnames, lineterminator="")
+    writer.writerow({fieldname: row.get(fieldname, "") for fieldname in fieldnames})
+
+    try:
+        subprocess.run(["pbcopy"], input=buffer.getvalue(), text=True, check=True)
+    except (OSError, subprocess.SubprocessError):
+        pass
 
 
 def export_daily_csv(config_path=CONFIG_FILENAME, csv_path=CSV_FILENAME):
