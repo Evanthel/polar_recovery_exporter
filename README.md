@@ -1,5 +1,5 @@
 # Polar Recovery Exporter
-`polar_recovery_exporter.py` is a quiet daily exporter for Polar Open AccessLink data. It fetches the latest sleep and nightly recharge data, upserts one row into `polar_daily.csv`, and copies that latest CSV row to the macOS clipboard.
+`polar_recovery_exporter.py` is a quiet daily exporter for Polar Open AccessLink data. It fetches the latest sleep and nightly recharge data, upserts one row into `polar_daily.csv`, and copies that latest CSV row to the clipboard on macOS and Windows.
 
 The goal is to create a lightweight, analysis-ready dataset for personal tracking, journaling, or AI-assisted analysis. It focuses on a small set of high-signal recovery metrics such as HRV, sleep, and ANS rather than full activity tracking.
 
@@ -41,7 +41,7 @@ Run the exporter:
 python3 polar_recovery_exporter.py
 ```
 
-The script runs silently, updates `polar_daily.csv`, and copies the latest written CSV row to the macOS clipboard using `pbcopy`. The resulting CSV is designed to be easily used as input for spreadsheets, Python analysis, or AI tools (e.g. ChatGPT) for pattern discovery and decision support.
+The script runs silently, updates `polar_daily.csv`, and copies the latest written CSV row to the clipboard. On macOS it uses `pbcopy`. On Windows it uses `clip` or PowerShell's `Set-Clipboard`. The resulting CSV is designed to be easily used as input for spreadsheets, Python analysis, or AI tools (e.g. ChatGPT) for pattern discovery and decision support.
 
 ## macOS Shortcuts
 
@@ -55,6 +55,12 @@ python3 polar_recovery_exporter.py
 ```
 
 After each run, the newest CSV row is available directly in the clipboard, which is useful for Shortcuts, notes, journaling apps, or quick pasting into an AI tool.
+
+## Clipboard support
+
+- macOS: uses `pbcopy`
+- Windows: uses `clip` or PowerShell `Set-Clipboard`
+- Other platforms: the exporter still writes the CSV normally, but clipboard copy is skipped if no supported clipboard command is available
 
 ## CSV Output
 
@@ -118,5 +124,5 @@ Useful additions with high signal-to-effort ratio include:
 
 ## Changelog
 
-- Added automatic clipboard copy of the latest CSV row after each run on macOS.
-- Updated the documentation to describe the clipboard behavior and its Shortcuts-friendly workflow.
+- Added automatic clipboard copy of the latest CSV row after each run on macOS and Windows.
+- Updated the documentation to describe the cross-platform clipboard behavior and Shortcuts-friendly workflow.

@@ -221,18 +221,35 @@ def upsert_csv_row(csv_path, row):
 
 
 def copy_row_to_clipboard(fieldnames, row):
-    """Copy the latest CSV row to the macOS clipboard using the written column order."""
-    if not shutil.which("pbcopy"):
-        return
-
     buffer = StringIO()
     writer = csv.DictWriter(buffer, fieldnames=fieldnames, lineterminator="")
     writer.writerow({fieldname: row.get(fieldname, "") for fieldname in fieldnames})
 
+    copy_text_to_clipboard(buffer.getvalue())
+
+
+def copy_text_to_clipboard(text):
+    """Best-effort clipboard copy for macOS and Windows."""
     try:
-        subprocess.run(["pbcopy"], input=buffer.getvalue(), text=True, check=True)
+        if shutil.which("pbcopy"):
+            subprocess.run(["pbcopy"], input=text, text=True, check=True)
+            return
+
+        if shutil.which("clip"):
+            subprocess.run(["clip"], input=text, text=True, check=True)
+            return
+
+        for command in ("powershell", "pwsh"):
+            if shutil.which(command):
+                subprocess.run(
+                    [command, "-NoProfile", "-Command", "Set-Clipboard"],
+                    input=text,
+                    text=True,
+                    check=True,
+                )
+                return
     except (OSError, subprocess.SubprocessError):
-        pass
+        return
 
 
 def export_daily_csv(config_path=CONFIG_FILENAME, csv_path=CSV_FILENAME):
