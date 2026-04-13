@@ -7,6 +7,8 @@ It is designed to run inside the official Polar example repository structure and
 
 [https://github.com/polarofficial/accesslink-example-python](https://github.com/polarofficial/accesslink-example-python)
 
+![Polar Exporter](polar_exporter.png)
+
 ## Requirements
 
 - Polar Flow account
